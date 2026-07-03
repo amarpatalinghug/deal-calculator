@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Deal Calculator</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A0F1E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Deal Calc">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iOTgiIGhlaWdodD0iOTgiIHJ4PSIxOCIgZmlsbD0iIzBBMEYxRSIgc3Ryb2tlPSIjMTBCOTgxIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSI1MCIgeT0iNjgiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMTBCOTgxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4kPC90ZXh0Pjwvc3ZnPgo=">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iOTgiIGhlaWdodD0iOTgiIHJ4PSIxOCIgZmlsbD0iIzBBMEYxRSIgc3Ryb2tlPSIjMTBCOTgxIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSI1MCIgeT0iNjgiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMTBCOTgxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4kPC90ZXh0Pjwvc3ZnPgo=">
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">Asset Deal Calculator</div>
+    <div class="header-sub">Atlanta, GA · Real-time go/no-go · Live market data Jul 2026</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('turo')">🚗 Turo Car</button>
+  <button class="tab" onclick="switchTab('land')">🌳 Land Flip</button>
+  <button class="tab" onclick="switchTab('brrrr')">🏠 BRRRR</button>
+  <button class="tab" onclick="switchTab('multi')">🏢 Multifamily</button>
+</div>
+
+<div class="body">
+
+  <!-- ═══ INPUTS ═══ -->
+  <div class="inputs-col" id="inputs-col">
+
+    <!-- TURO INPUTS -->
+    <div id="turo-inputs">
+      <div class="section-label">Purchase <span class="tag fact">cash only</span></div>
+      <div class="field">
+        <div class="field-label">Purchase Price <span id="t-price-v">$7,000</span></div>
+        <input type="range" id="t-price" min="3000" max="35000" step="500" value="7000" oninput="calcTuro()">
+      </div>
+      <div class="field">
+        <div class="field-label">Recon Buffer <span id="t-recon-v">$700</span></div>
+        <input type="range" id="t-recon" min="0" max="3000" step="100" value="700" oninput="calcTuro()">
+      </div>
+
+      <hr class="divider">
+      <div class="section-label">Revenue <span class="tag est">atlanta market</span></div>
+      <div class="field">
+        <div class="field-label">Daily Rate <span id="t-rate-v">$65</span></div>
+        <input type="range" id="t-rate" min="30" max="200" step="5" value="65" oninput="calcTuro()">
+      </div>
+      <div class="field" id="t-occ-field">
+        <div class="field-label">Occupancy <span id="t-occ-v">50%</span></div>
+        <input type="range" id="t-occ" min="10" max="90" step="5" value="50" oninput="calcTuro()">
+      </div>
+      <div class="field">
+        <label class="field-label" style="cursor:pointer">
+          Seasonality Mode
+          <input type="checkbox" id="t-seasonal" onchange="calcTuro()" style="width:auto;accent-color:var(--accent);cursor:pointer">
+        </label>
+      </div>
+      <div id="t-seasonal-fields" style="display:none">
+        <div class="field">
+          <div class="field-label">Summer Occupancy (6 mo) <span id="t-occ-summer-v">65%</span></div>
+          <input type="range" id="t-occ-summer" min="10" max="90" step="5" value="65" oninput="calcTuro()">
+        </div>
+        <div class="field">
+          <div class="field-label">Winter Occupancy (6 mo) <span id="t-occ-winter-v">35%</span></div>
+          <input type="range" id="t-occ-winter" min="10" max="90" step="5" value="35" oninput="calcTuro()">
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Earnings Plan (host share) <span id="t-plan-v">80%</span></div>
+        <select id="t-plan" onchange="calcTuro()">
+          <option value="0.70">70 Plan — 70% host share / $0 damage</option>
+          <option value="0.80" selected>80 Plan — 80% host share / $500 damage</option>
+          <option value="0.90">90 Plan — 90% host share / $2,500 damage</option>
+        </select>
+      </div>
+
+      <hr class="divider">
+      <div class="section-label">Monthly Expenses <span class="tag est">estimate</span></div>
+      <div class="field">
+        <div class="field-label">Off-trip Insurance (Tint) <span id="t-ins-v">$45</span></div>
+        <input type="range" id="t-ins" min="0" max="150" step="5" value="45" oninput="calcTuro()">
+      </div>
+      <div class="field">
+        <div class="field-label">Maintenance Reserve <span id="t-maint-v">$50</span></div>
+        <input type="range" id="t-maint" min="0" max="200" step="10" value="50" oninput="calcTuro()">
+      </div>
+      <div class="field">
+        <div class="field-label">Cleaning / Turnover <span id="t-clean-v">$60</span></div>
+        <input type="range" id="t-clean" min="0" max="200" step="10" value="60" oninput="calcTuro()">
+      </div>
+    </div>
+
+    <!-- LAND INPUTS -->
+    <div id="land-inputs" style="display:none">
+      <div class="section-label">Purchase <span class="tag assume">assumption</span></div>
+      <div class="field">
+        <div class="field-label">Land Purchase Price <span id="l-price-v">$20,000</span></div>
+        <input type="range" id="l-price" min="5000" max="150000" step="1000" value="20000" oninput="calcLand()">
+      </div>
+      <div class="field">
+        <div class="field-label">Down Payment % <span id="l-dp-v">40%</span></div>
+        <input type="range" id="l-dp" min="20" max="100" step="5" value="40" oninput="calcLand()">
+      </div>
+      <div class="field">
+        <div class="field-label">Loan Interest Rate <span id="l-rate-v">9.0%</span></div>
+        <input type="range" id="l-rate" min="5" max="15" step="0.5" value="9" oninput="calcLand()">
+      </div>
+
+      <hr class="divider">
+      <div class="section-label">Exit <span class="tag assume">your projection</span></div>
+      <div class="field">
+        <div class="field-label">Target Resale Price <span id="l-resale-v">$32,000</span></div>
+        <input type="range" id="l-resale" min="5000" max="300000" step="1000" value="32000" oninput="calcLand()">
+      </div>
+      <div class="field">
+        <div class="field-label">Expected Hold (months) <span id="l-hold-v">8 mo</span></div>
+        <input type="range" id="l-hold" min="1" max="36" step="1" value="8" oninput="calcLand()">
+      </div>
+
+      <hr class="divider">
+      <div class="section-label">Costs <span class="tag est">estimate</span></div>
+      <div class="field">
+        <div class="field-label">Closing Costs (both ends) <span id="l-close-v">$1,200</span></div>
+        <input type="range" id="l-close" min="500" max="10000" step="100" value="1200" oninput="calcLand()">
+      </div>
+      <div class="field">
+        <div class="field-label">Annual Property Taxes <span id="l-tax-v">$450</span></div>
+        <input type="range" id="l-tax" min="0" max="5000" step="50" value="450" oninput="calcLand()">
+      </div>
+      <div class="field">
+        <div class="field-label">Site Prep / Rehab Budget <span id="l-rehab-v">$0</span></div>
+        <input type="range" id="l-rehab" min="0" max="30000" step="250" value="0" oninput="calcLand()">
+      </div>
+    </div>
+
+    <!-- BRRRR INPUTS -->
+    <div id="brrrr-inputs" style="display:none">
+      <div class="section-label">Purchase + Rehab <span class="tag assume">assumptions</span></div>
+      <div class="field">
+        <div class="field-label">Purchase Price <span id="b-price-v">$89,000</span></div>
+        <input type="range" id="b-price" min="20000" max="400000" step="1000" value="89000" oninput="calcBRRRR()">
+      </div>
+      <div class="field">
+        <div class="field-label">Rehab Estimate (raw quote) <span id="b-rehab-v">$20,000</span></div>
+        <input type="range" id="b-rehab" min="0" max="150000" step="1000" value="20000" oninput="calcBRRRR()">
+      </div>
+      <div class="field">
+        <div class="field-label">After-Repair Value (ARV) <span id="b-arv-v">$150,000</span></div>
+        <input type="range" id="b-arv" min="50000" max="800000" step="5000" value="150000" oninput="calcBRRRR()">
+      </div>
+      <div class="field">
+        <div class="field-label">Hold Period (rehab, months) <span id="b-hold-v">3 mo</span></div>
+        <input type="range" id="b-hold" min="1" max="18" step="1" value="3" oninput="calcBRRRR()">
+      </div>
+      <div class="field">
+        <div class="field-label">Hard Money Rate <span id="b-hm-v">11%</span></div>
+        <input type="range" id="b-hm" min="6" max="18" step="0.5" value="11" oninput="calcBRRRR()">
+      </div>
+      <div class="field">
+        <label class="field-label" style="cursor:pointer">
+          Stress Test: +6mo Rehab Delay
+          <input type="checkbox" id="b-delay-toggle" onchange="calcBRRRR()" style="width:auto;accent-color:var(--accent);cursor:pointer">
+        </label>
+      </div>
+
+      <hr class="divider">
+      <div class="section-label">Refi + Rent <span class="tag est">estimates</span></div>
+      <div class="field">
+        <div class="field-label">Refi LTV % <span id="b-ltv-v">75%</span></div>
+        <input type="range" id="b-ltv" min="60" max="80" step="5" value="75" oninput="calcBRRRR()">
+      </div>
+      <div class="field">
+        <div class="field-label">Refi Interest Rate <span id="b-refi-v">7.0%</span></div>
+        <input type="range" id="b-refi" min="5" max="12" step="0.25" value="7" oninput="calcBRRRR()">
+      </div>
+      <div class="field">
+        <div class="field-label">Monthly Rent <span id="b-rent-v">$1,400</span></div>
+        <input type="range" id="b-rent" min="500" max="5000" step="50" value="1400" oninput="calcBRRRR()">
+      </div>
+      <div class="field">
+        <div class="field-label">Operating Expense % of Rent <span id="b-opex-v">35%</span></div>
+        <input type="range" id="b-opex" min="20" max="60" step="5" value="35" oninput="calcBRRRR()">
+      </div>
+    </div>
+
+    <!-- MULTIFAMILY INPUTS -->
+    <div id="multi-inputs" style="display:none">
+      <div class="section-label">Property <span class="tag assume">assumption</span></div>
+      <div class="field">
+        <div class="field-label">Units <span id="m-units-v">8</span></div>
+        <input type="range" id="m-units" min="2" max="50" step="1" value="8" oninput="calcMulti()">
+      </div>
+      <div class="field">
+        <div class="field-label">Purchase Price <span id="m-price-v">$850,000</span></div>
+        <input type="range" id="m-price" min="100000" max="3000000" step="10000" value="850000" oninput="calcMulti()">
+      </div>
+      <div class="field">
+        <div class="field-label">Down Payment % <span id="m-dp-v">25%</span></div>
+        <input type="range" id="m-dp" min="15" max="40" step="5" value="25" oninput="calcMulti()">
+      </div>
+      <div class="field">
+        <div class="field-label">Loan Interest Rate <span id="m-rate-v">7.0%</span></div>
+        <input type="range" id="m-rate" min="5" max="10" step="0.25" value="7" oninput="calcMulti()">
+      </div>
+      <div class="field">
+        <div class="field-label">Loan Term (years) <span id="m-term-v">30 yr</span></div>
+        <input type="range" id="m-term" min="15" max="30" step="5" value="30" oninput="calcMulti()">
+      </div>
+
+      <hr class="divider">
+      <div class="section-label">Income <span class="tag est">estimate</span></div>
+      <div class="field">
+        <div class="field-label">Rent / Unit (mo) <span id="m-rent-v">$1,100</span></div>
+        <input type="range" id="m-rent" min="400" max="3000" step="25" value="1100" oninput="calcMulti()">
+      </div>
+      <div class="field">
+        <div class="field-label">Other Income (mo, total) <span id="m-other-v">$200</span></div>
+        <input type="range" id="m-other" min="0" max="2000" step="25" value="200" oninput="calcMulti()">
+      </div>
+      <div class="field">
+        <div class="field-label">Vacancy % <span id="m-vac-v">7%</span></div>
+        <input type="range" id="m-vac" min="0" max="20" step="1" value="7" oninput="calcMulti()">
+      </div>
+
+      <hr class="divider">
+      <div class="section-label">Operating <span class="tag est">estimate</span></div>
+      <div class="field">
+        <div class="field-label">Operating Expense % of EGI <span id="m-opex-v">40%</span></div>
+        <input type="range" id="m-opex" min="20" max="60" step="5" value="40" oninput="calcMulti()">
+      </div>
+    </div>
+
+  </div><!-- /inputs-col -->
+
+  <!-- ═══ OUTPUTS ═══ -->
+  <div class="outputs-col">
+
+    <!-- TURO OUTPUTS -->
+    <div id="turo-outputs">
+      <div class="verdict-card go" id="t-verdict">
+        <div class="verdict-glow"></div>
+        <div class="verdict-label">Deal Verdict</div>
+        <div class="verdict-text" id="t-verdict-text">GO</div>
+        <div class="verdict-reason" id="t-verdict-reason">Strong ROI — cash purchase removes loan drag</div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Net Monthly</div>
+          <div class="metric-value green" id="t-net-mo">$665</div>
+          <div class="metric-sub">after all costs</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Annual Net</div>
+          <div class="metric-value green" id="t-net-yr">$7,980</div>
+          <div class="metric-sub">annualized</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Annual ROI</div>
+          <div class="metric-value blue" id="t-roi">104%</div>
+          <div class="metric-sub">on cash deployed</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Break-Even</div>
+          <div class="metric-value amber" id="t-be">2.2 days</div>
+          <div class="metric-sub">to cover monthly costs</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Cash Deployed</div>
+          <div class="metric-value" id="t-cash">$7,700</div>
+          <div class="metric-sub">purchase + recon</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Payback Period</div>
+          <div class="metric-value" id="t-payback">11.6 mo</div>
+          <div class="metric-sub">months to recover cost</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Monthly Math Breakdown</div>
+        <div class="breakdown-row formula">
+          <div class="br-label formula-text" id="t-formula">= Daily Rate × Booked Days × Host Share − Expenses</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Gross Revenue (daily rate × booked days)</div>
+          <div class="br-val neu" id="t-gross">$975</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Turo's Cut</div>
+          <div class="br-val neg" id="t-turo-cut">−$195</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Your Net from Turo</div>
+          <div class="br-val calc" id="t-turo-net">$780</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Off-trip Insurance</div>
+          <div class="br-val neg" id="t-ins-out">−$45</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Maintenance Reserve</div>
+          <div class="br-val neg" id="t-maint-out">−$50</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Cleaning / Turnover</div>
+          <div class="br-val neg" id="t-clean-out">−$60</div>
+        </div>
+        <div class="breakdown-row total">
+          <div class="br-label">NET MONTHLY CASH FLOW</div>
+          <div class="br-val pos" id="t-net-out">$625</div>
+        </div>
+      </div>
+
+      <div class="stress-section">
+        <div class="stress-header">⚡ Stress Test — 3 Scenarios</div>
+        <div class="stress-grid" id="t-stress-grid">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Buffer Build Timeline (40% set-aside)</div>
+        <div id="t-buffer-rows"><!-- filled by JS --></div>
+      </div>
+    </div>
+
+    <!-- LAND OUTPUTS -->
+    <div id="land-outputs" style="display:none">
+      <div class="verdict-card go" id="l-verdict">
+        <div class="verdict-glow"></div>
+        <div class="verdict-label">Deal Verdict</div>
+        <div class="verdict-text" id="l-verdict-text">GO</div>
+        <div class="verdict-reason" id="l-verdict-reason">Strong margin relative to capital deployed</div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Net Margin</div>
+          <div class="metric-value green" id="l-margin">$9,780</div>
+          <div class="metric-sub">after all costs</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Annualized ROI</div>
+          <div class="metric-value blue" id="l-roi">183%</div>
+          <div class="metric-sub">on cash deployed</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Cash Deployed</div>
+          <div class="metric-value" id="l-cash">$8,000</div>
+          <div class="metric-sub">down payment + rehab</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Gross Margin</div>
+          <div class="metric-value" id="l-gross-m">$12,000</div>
+          <div class="metric-sub">resale − purchase</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total Hold Cost</div>
+          <div class="metric-value amber" id="l-hold-cost">$2,220</div>
+          <div class="metric-sub">interest + tax</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Monthly Burn</div>
+          <div class="metric-value red" id="l-burn">$128</div>
+          <div class="metric-sub">while waiting to sell</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Deal Math Breakdown</div>
+        <div class="breakdown-row formula">
+          <div class="br-label formula-text" id="l-formula">= Resale − Purchase − Interest − Taxes − Closing Costs − Rehab</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Resale Price (your target)</div>
+          <div class="br-val neu" id="l-resale-out">$32,000</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Purchase Price</div>
+          <div class="br-val neg" id="l-purchase-out">−$20,000</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Loan Interest (hold period)</div>
+          <div class="br-val neg" id="l-interest-out">−$720</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Property Taxes (prorated)</div>
+          <div class="br-val neg" id="l-tax-out">−$300</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Closing Costs (both ends)</div>
+          <div class="br-val neg" id="l-close-out">−$1,200</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Site Prep / Rehab Budget</div>
+          <div class="br-val neg" id="l-rehab-out">−$0</div>
+        </div>
+        <div class="breakdown-row total">
+          <div class="br-label">NET MARGIN</div>
+          <div class="br-val pos" id="l-net-out">$9,780</div>
+        </div>
+      </div>
+
+      <div class="stress-section">
+        <div class="stress-header">⚡ Exit Timing Stress Test</div>
+        <div class="stress-grid" id="l-stress-grid"></div>
+      </div>
+    </div>
+
+    <!-- BRRRR OUTPUTS -->
+    <div id="brrrr-outputs" style="display:none">
+      <div class="verdict-card go" id="b-verdict">
+        <div class="verdict-glow"></div>
+        <div class="verdict-label">BRRRR Verdict</div>
+        <div class="verdict-text" id="b-verdict-text">GO</div>
+        <div class="verdict-reason" id="b-verdict-reason">Deal refinances cleanly</div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Cash Left In Deal</div>
+          <div class="metric-value green" id="b-cash-left">$0</div>
+          <div class="metric-sub">lower = better BRRRR</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Monthly Cash Flow</div>
+          <div class="metric-value green" id="b-cf">$162</div>
+          <div class="metric-sub">after PITI + opex</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">DSCR</div>
+          <div class="metric-value blue" id="b-dscr">1.22</div>
+          <div class="metric-sub">≥1.25 preferred</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">MAO</div>
+          <div class="metric-value amber" id="b-mao">$89,500</div>
+          <div class="metric-sub">max you should pay</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Refi Cash Out</div>
+          <div class="metric-value" id="b-refi-out">$112,500</div>
+          <div class="metric-sub">ARV × LTV</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Equity Created</div>
+          <div class="metric-value green" id="b-equity">$36,507</div>
+          <div class="metric-sub">ARV − total invested</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">BRRRR Math Breakdown</div>
+        <div class="breakdown-row formula">
+          <div class="br-label formula-text">MAO = (ARV × 75%) − Rehab (contingency-adjusted)</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Purchase Price</div>
+          <div class="br-val neg" id="b-price-out">$89,000</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Rehab (raw quote)</div>
+          <div class="br-val neg" id="b-rehab-raw">$20,000</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Rehab (+15% contingency)</div>
+          <div class="br-val neg" id="b-rehab-adj">$23,000</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Holding Costs (interest + carry)</div>
+          <div class="br-val neg" id="b-holding">$3,993</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Total Cash Invested</div>
+          <div class="br-val calc" id="b-total-in">$115,993</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Refinance Cash Out (ARV × LTV)</div>
+          <div class="br-val pos" id="b-refi-cash">$112,500</div>
+        </div>
+        <div class="breakdown-row total">
+          <div class="br-label">CASH LEFT IN DEAL</div>
+          <div class="br-val" id="b-left-out">$3,493</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Monthly Cash Flow After Refi</div>
+        <div class="breakdown-row">
+          <div class="br-label">Monthly Rent</div>
+          <div class="br-val pos" id="b-rent-out">$1,400</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">PITI (mortgage payment)</div>
+          <div class="br-val neg" id="b-piti">−$748</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Operating Expenses</div>
+          <div class="br-val neg" id="b-opex-out">−$490</div>
+        </div>
+        <div class="breakdown-row total">
+          <div class="br-label">NET MONTHLY CASH FLOW</div>
+          <div class="br-val" id="b-cf-out">$162</div>
+        </div>
+      </div>
+
+      <div class="stress-section">
+        <div class="stress-header" id="b-stress-header">⚡ ARV Sensitivity — What If Comps Are Wrong?</div>
+        <div class="stress-grid" id="b-stress-grid"></div>
+      </div>
+    </div>
+
+    <!-- MULTIFAMILY OUTPUTS -->
+    <div id="multi-outputs" style="display:none">
+      <div class="verdict-card go" id="m-verdict">
+        <div class="verdict-glow"></div>
+        <div class="verdict-label">Deal Verdict</div>
+        <div class="verdict-text" id="m-verdict-text">GO</div>
+        <div class="verdict-reason" id="m-verdict-reason">DSCR and cash-on-cash both clear the bar</div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Monthly NOI</div>
+          <div class="metric-value green" id="m-noi-mo">$0</div>
+          <div class="metric-sub">EGI − opex</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Annual NOI</div>
+          <div class="metric-value green" id="m-noi-yr">$0</div>
+          <div class="metric-sub">annualized</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Cap Rate</div>
+          <div class="metric-value blue" id="m-cap">0%</div>
+          <div class="metric-sub">NOI / purchase price</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">DSCR</div>
+          <div class="metric-value blue" id="m-dscr">0.00</div>
+          <div class="metric-sub">≥1.25 preferred</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Cash-on-Cash</div>
+          <div class="metric-value blue" id="m-coc">0%</div>
+          <div class="metric-sub">≥8% preferred</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Monthly Cash Flow</div>
+          <div class="metric-value" id="m-cf">$0</div>
+          <div class="metric-sub">NOI − debt service</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Income Breakdown (Monthly)</div>
+        <div class="breakdown-row formula">
+          <div class="br-label formula-text">EGI = (Rent × Units + Other Income) × (1 − Vacancy%)</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Gross Potential Rent (rent × units)</div>
+          <div class="br-val neu" id="m-gpr">$0</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Other Income</div>
+          <div class="br-val neu" id="m-other-out">$0</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Vacancy Loss</div>
+          <div class="br-val neg" id="m-vac-out">−$0</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Effective Gross Income</div>
+          <div class="br-val calc" id="m-egi">$0</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Operating Expenses</div>
+          <div class="br-val neg" id="m-opex-out">−$0</div>
+        </div>
+        <div class="breakdown-row total">
+          <div class="br-label">NET OPERATING INCOME</div>
+          <div class="br-val pos" id="m-noi-out">$0</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Debt Service &amp; Cash Flow</div>
+        <div class="breakdown-row">
+          <div class="br-label">Monthly NOI</div>
+          <div class="br-val pos" id="m-noi-out2">$0</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Debt Service (P&amp;I)</div>
+          <div class="br-val neg" id="m-debt-out">−$0</div>
+        </div>
+        <div class="breakdown-row total">
+          <div class="br-label">NET MONTHLY CASH FLOW</div>
+          <div class="br-val" id="m-cf-out">$0</div>
+        </div>
+      </div>
+
+      <div class="stress-section">
+        <div class="stress-header">⚡ Stress Test — Vacancy, Rate &amp; OpEx Shocks</div>
+        <div class="stress-grid" id="m-stress-grid"></div>
+      </div>
+    </div>
+
+  </div><!-- /outputs-col -->
+</div><!-- /body -->
+
+<script src="js/app.js"></script>
+<script src="js/pwa.js"></script>
+</body>
+</html>
