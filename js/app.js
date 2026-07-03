@@ -1,4 +1,6 @@
-// ─── UTILITIES ───────────────────────────────────────────────────────────────
+const ENGINE_VERSION = '2.1.0';
+
+// ─── UTILITIES ───────────────────────────────────────────────────────────
 const fmt = (n, dec=0) => n < 0
   ? '−$' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec})
     : '$' + n.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
@@ -18,7 +20,7 @@ function colorClass(val, pos, neg) {
     return val >= pos ? 'pos' : val <= neg ? 'neg' : 'calc';
 }
 
-// ─── TAB SWITCHING ───────────────────────────────────────────────────────────
+// ─── TAB SWITCHING ──────────────────────────────────────────────────────
 function switchTab(tab) {
     ['turo','land','brrrr','multi'].forEach(t => {
           document.getElementById(t+'-inputs').style.display = t === tab ? 'block' : 'none';
@@ -29,7 +31,7 @@ function switchTab(tab) {
     });
 }
 
-// ─── TURO CALCULATOR ─────────────────────────────────────────────────────────
+// ─── TURO CALCULATOR ───────────────────────────────────────────────────────
 function calcTuro() {
     const price   = +document.getElementById('t-price').value;
     const recon   = +document.getElementById('t-recon').value;
@@ -101,7 +103,7 @@ function calcTuro() {
     document.getElementById('t-roi').textContent     = pct(roi, 0);
     document.getElementById('t-be').textContent      = bedays.toFixed(1) + ' days';
     document.getElementById('t-cash').textContent    = fmt(totalCash);
-    document.getElementById('t-payback').textContent = payback.toFixed(1) + ' mo';
+    document.getElementById('t-payback').textContent = netMo > 0 ? payback.toFixed(1) + ' mo' : '—'; // [FIXED 6.6]
 
   // Color coding
   document.getElementById('t-net-mo').className = 'metric-value ' + (netMo > 400 ? 'green' : netMo > 0 ? 'amber' : 'red');
@@ -146,7 +148,9 @@ function calcTuro() {
   // Buffer build
   const bufferRows = document.getElementById('t-buffer-rows');
     let buf = 0;
-    bufferRows.innerHTML = [1,2,3,4,5,6].map(mo => {
+    bufferRows.innerHTML = netMo <= 0
+      ? `<div class="breakdown-row"><div class="br-label">No positive cash flow — nothing to set aside</div><div class="br-val neg">$0</div></div>` // [FIXED 6.6]
+      : [1,2,3,4,5,6].map(mo => {
           const contribution = netMo * 0.40;
           buf += contribution;
           const hit = buf >= 1500;
@@ -157,7 +161,7 @@ function calcTuro() {
     }).join('');
 }
 
-// ─── LAND CALCULATOR ─────────────────────────────────────────────────────────
+// ─── LAND CALCULATOR ───────────────────────────────────────────────────────────
 function calcLand() {
     const price   = +document.getElementById('l-price').value;
     const dp      = +document.getElementById('l-dp').value / 100;
@@ -237,7 +241,7 @@ function calcLand() {
     }).join('');
 }
 
-// ─── BRRRR CALCULATOR ────────────────────────────────────────────────────────
+// ─── BRRRR CALCULATOR ──────────────────────────────────────────────────────────
 function calcBRRRR() {
     const price   = +document.getElementById('b-price').value;
     const rehab   = +document.getElementById('b-rehab').value;
@@ -248,6 +252,7 @@ function calcBRRRR() {
     const refiR   = +document.getElementById('b-refi').value / 100;
     const rent    = +document.getElementById('b-rent').value;
     const opexPct = +document.getElementById('b-opex').value / 100;
+    const ti      = +document.getElementById('b-ti').value;   // monthly taxes + insurance [FIXED 6.2]
 
   document.getElementById('b-price-v').textContent  = fmt(price);
     document.getElementById('b-rehab-v').textContent  = fmt(rehab);
@@ -258,6 +263,7 @@ function calcBRRRR() {
     document.getElementById('b-refi-v').textContent   = pct(refiR*100, 1);
     document.getElementById('b-rent-v').textContent   = fmt(rent);
     document.getElementById('b-opex-v').textContent   = pct(opexPct*100);
+    document.getElementById('b-ti-v').textContent      = fmt(ti);
 
   const rehabAdj    = rehab * 1.15;
     const mao         = (arv * 0.75) - rehabAdj;
@@ -271,10 +277,11 @@ function calcBRRRR() {
   const loanBalance = refiCashOut;
     const moRate      = refiR / 12;
     const n           = 360; // 30-yr
-  const piti        = loanBalance * (moRate * Math.pow(1+moRate,n)) / (Math.pow(1+moRate,n)-1);
-    const opex        = rent * opexPct;
-    const cf          = rent - piti - opex;
-    const dscr        = rent / piti;
+  const pi          = loanBalance * (moRate * Math.pow(1+moRate,n)) / (Math.pow(1+moRate,n)-1); // P&I only [FIXED 6.2 label]
+    const opex        = rent * opexPct;                 // opex EXCLUDES taxes+insurance (separate input)
+    const noi         = rent - opex - ti;               // NOI per standard definition
+    const cf          = noi - pi;                       // [FIXED 6.2]
+    const dscr        = noi / pi;                       // [FIXED 6.1/6.8] NOI / debt service — matches Multifamily
 
   document.getElementById('b-cash-left').textContent  = fmt(Math.abs(cashLeft));
     document.getElementById('b-cash-left').className    = 'metric-value ' + (cashLeft <= 0 ? 'green' : cashLeft < 10000 ? 'amber' : 'red');
@@ -298,7 +305,8 @@ function calcBRRRR() {
     leftEl.className   = 'br-val ' + (cashLeft <= 0 ? 'pos' : cashLeft < 10000 ? 'amber' : 'neg');
 
   document.getElementById('b-rent-out').textContent = fmt(rent);
-    document.getElementById('b-piti').textContent     = '−' + fmt(piti);
+    document.getElementById('b-piti').textContent     = '−' + fmt(pi);
+    document.getElementById('b-ti-out').textContent   = '−' + fmt(ti);
     document.getElementById('b-opex-out').textContent = '−' + fmt(opex);
     const cfEl = document.getElementById('b-cf-out');
     cfEl.textContent = fmt(cf);
@@ -306,7 +314,7 @@ function calcBRRRR() {
 
   if (price > mao + 5000) setVerdict('b-verdict','b-verdict-text','b-verdict-reason','nogo', `You're paying ${fmt(price - mao)} OVER MAO — deal breaks at refinance`);
     else if (cashLeft > 20000) setVerdict('b-verdict','b-verdict-text','b-verdict-reason','nogo', `${fmt(cashLeft)} stuck in deal after refi — ARV may be optimistic`);
-    else if (cf < 0) setVerdict('b-verdict','b-verdict-text','b-verdict-reason','nogo', `Negative cash flow (${fmt(cf)}/mo) — rent doesn't cover PITI`);
+    else if (cf < 0) setVerdict('b-verdict','b-verdict-text','b-verdict-reason','nogo', `Negative cash flow (${fmt(cf)}/mo) — rent doesn't cover P&I + taxes/insurance`);
     else if (cashLeft <= 0 && cf >= 150) setVerdict('b-verdict','b-verdict-text','b-verdict-reason','go', `Full cash pull-out + ${fmt(cf)}/mo cash flow — textbook BRRRR`);
     else if (cashLeft <= 10000 && cf >= 0) setVerdict('b-verdict','b-verdict-text','b-verdict-reason','marginal', `${fmt(cashLeft)} left in deal — acceptable if ARV comps are solid`);
     else setVerdict('b-verdict','b-verdict-text','b-verdict-reason','marginal', `Tight margins — stress-test ARV before committing`);
@@ -416,7 +424,7 @@ function calcMulti() {
   // Verdict — GO: DSCR >= 1.25 AND CoC >= 8%; MARGINAL: DSCR >= 1.1; else NO-GO
   if (dscr >= 1.25 && coc >= 8) setVerdict('m-verdict','m-verdict-text','m-verdict-reason','go', `DSCR ${dscr.toFixed(2)} · ${pct(coc,1)} cash-on-cash — clears both bars`);
     else if (dscr >= 1.1) setVerdict('m-verdict','m-verdict-text','m-verdict-reason','marginal', `DSCR ${dscr.toFixed(2)} acceptable — cash-on-cash at ${pct(coc,1)}`);
-    else setVerdict('m-verdict','m-verdict-text','m-verdict-reason','nogo', `DSCR ${dscr.toFixed(2)} too thin — rent doesn't clear debt service`);
+    else setVerdict('m-verdict','m-verdict-text','m-verdict-reason','nogo', `DSCR ${dscr.toFixed(2)} too thin — insufficient NOI margin over debt service`);
 
   // Stress test — vacancy, rate, and opex shocks
   const scenarios = [
@@ -445,7 +453,7 @@ function calcMulti() {
     }).join('');
 }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 calcTuro();
 calcLand();
 calcBRRRR();
