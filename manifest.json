@@ -1,0 +1,14 @@
+{
+    "name": "Deal Calculator",
+    "short_name": "Deal Calc",
+    "description": "Family asset deal calculator - Turo cars, land flips, BRRRR rentals, and multifamily. Live GO/MARGINAL/NO-GO verdicts.",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#0A0F1E",
+    "theme_color": "#0A0F1E",
+    "icons": [
+          { "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iOTgiIGhlaWdodD0iOTgiIHJ4PSIxOCIgZmlsbD0iIzBBMEYxRSIgc3Ryb2tlPSIjMTBCOTgxIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSI1MCIgeT0iNjgiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMTBCOTgxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4kPC90ZXh0Pjwvc3ZnPgo=", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    ]
+}
