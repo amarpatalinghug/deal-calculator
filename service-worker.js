@@ -1,5 +1,5 @@
 // Bump this on every deploy that changes cached files — old caches are purged on activate.
-const CACHE_NAME = 'deal-calculator-v5';
+const CACHE_NAME = 'deal-calculator-v6';
 
 const APP_SHELL = [
     './',

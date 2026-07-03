@@ -192,6 +192,10 @@
         <div class="field-label">Operating Expense % of Rent <span id="b-opex-v">35%</span></div>
         <input type="range" id="b-opex" min="20" max="60" step="5" value="35" oninput="calcBRRRR()">
       </div>
+      <div class="field">
+        <div class="field-label">Taxes + Insurance /mo <span id="b-ti-v">$250</span></div>
+        <input type="range" id="b-ti" min="0" max="800" step="10" value="250" oninput="calcBRRRR()">
+      </div>
     </div>
 
     <!-- MULTIFAMILY INPUTS -->
@@ -354,7 +358,7 @@
         <div class="metric">
           <div class="metric-label">Annualized ROI</div>
           <div class="metric-value blue" id="l-roi">183%</div>
-          <div class="metric-sub">on cash deployed</div>
+          <div class="metric-sub">on DP + rehab (excl. closing costs)</div>
         </div>
         <div class="metric">
           <div class="metric-label">Cash Deployed</div>
@@ -432,12 +436,12 @@
         <div class="metric">
           <div class="metric-label">Cash Left In Deal</div>
           <div class="metric-value green" id="b-cash-left">$0</div>
-          <div class="metric-sub">lower = better BRRRR</div>
+          <div class="metric-sub">excl. HM points &amp; refi closing costs</div>
         </div>
         <div class="metric">
           <div class="metric-label">Monthly Cash Flow</div>
           <div class="metric-value green" id="b-cf">$162</div>
-          <div class="metric-sub">after PITI + opex</div>
+          <div class="metric-sub">after P&amp;I, T+I, opex</div>
         </div>
         <div class="metric">
           <div class="metric-label">DSCR</div>
@@ -503,8 +507,12 @@
           <div class="br-val pos" id="b-rent-out">$1,400</div>
         </div>
         <div class="breakdown-row">
-          <div class="br-label">PITI (mortgage payment)</div>
+          <div class="br-label">P&amp;I (mortgage payment)</div>
           <div class="br-val neg" id="b-piti">−$748</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Taxes + Insurance</div>
+          <div class="br-val neg" id="b-ti-out">−$250</div>
         </div>
         <div class="breakdown-row">
           <div class="br-label">Operating Expenses</div>
@@ -555,7 +563,7 @@
         <div class="metric">
           <div class="metric-label">Cash-on-Cash</div>
           <div class="metric-value blue" id="m-coc">0%</div>
-          <div class="metric-sub">≥8% preferred</div>
+          <div class="metric-sub">≥8% pref · on DP, excl. closing costs</div>
         </div>
         <div class="metric">
           <div class="metric-label">Monthly Cash Flow</div>
